@@ -36,6 +36,7 @@ export const SegmentedControl = <T extends string>(
             style={[styles.segment, isSelected && styles.segmentSelected]}
           >
             <Text
+              size="subtitle"
               weight="semiBold"
               color={isSelected ? 'primary' : 'subtext'}
               numberOfLines={1}
@@ -43,11 +44,11 @@ export const SegmentedControl = <T extends string>(
               {segment.label}
             </Text>
             {segment.count !== undefined && (
-              <View style={[styles.count, isSelected && styles.countSelected]}>
+              <View style={styles.count}>
                 <Text
                   size="caption"
                   weight="semiBold"
-                  color={isSelected ? 'white' : 'subtext'}
+                  color={isSelected ? 'primary' : 'subtext'}
                 >
                   {segment.count}
                 </Text>
@@ -64,8 +65,8 @@ const styles = StyleSheet.create({
   main: {
     flexDirection: 'row',
     padding: Spacing.xs,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.inputBg,
+    borderRadius: Radius.lg,
+    backgroundColor: Colors.primarySoft,
   },
   segment: {
     flex: 1,
@@ -73,8 +74,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.sm,
-    minHeight: 40,
-    borderRadius: Radius.sm,
+    minHeight: 42,
+    borderRadius: Radius.lg - Spacing.xs,
   },
   segmentSelected: {
     backgroundColor: Colors.cardBg,
@@ -82,12 +83,11 @@ const styles = StyleSheet.create({
   },
   count: {
     minWidth: 22,
+    height: 22,
     paddingHorizontal: Spacing.xs,
     alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: Radius.full,
-    backgroundColor: Colors.border,
-  },
-  countSelected: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primaryMuted,
   },
 });

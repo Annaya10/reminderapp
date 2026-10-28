@@ -18,8 +18,9 @@ export const FontSizes = {
   caption: 12,
   body: 14,
   subtitle: 16,
+  large: 18,
   title: 20,
-  heading: 28,
+  heading: 26,
 };
 
 export type FontSize = keyof typeof FontSizes;

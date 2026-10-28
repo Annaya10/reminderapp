@@ -36,3 +36,29 @@ export const sortByRemindAt = (reminders: Reminder[]): Reminder[] =>
 
 export const isOverdue = (reminder: Reminder, now: Date = new Date()) =>
   !reminder.isCompleted && new Date(reminder.remindAt) < now;
+
+export type ReminderStatus = 'completed' | 'overdue' | 'pending';
+
+export const getReminderStatus = (
+  reminder: Reminder,
+  now: Date = new Date(),
+): ReminderStatus =>
+  reminder.isCompleted
+    ? 'completed'
+    : isOverdue(reminder, now)
+    ? 'overdue'
+    : 'pending';
+
+/**
+ * The reminder to highlight on the map: the next one still due, or else the
+ * most recently missed one. Completed reminders are skipped.
+ */
+export const getNextReminder = (
+  reminders: Reminder[],
+  now: Date = new Date(),
+): Reminder | null => {
+  const open = sortByRemindAt(reminders.filter(item => !item.isCompleted));
+  return (
+    open.find(item => new Date(item.remindAt) >= now) ?? open.at(-1) ?? null
+  );
+};

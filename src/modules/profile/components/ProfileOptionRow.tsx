@@ -1,61 +1,103 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon, IconName } from '@src/components/Icon';
 import { Text } from '@src/components/Text';
-import { Colors } from '@src/constants/colors';
+import { ColorName, Colors } from '@src/constants/colors';
 import { Radius, Spacing } from '@src/constants/layout';
 
 interface ProfileOptionRowProps {
   icon: IconName;
+  iconColor?: ColorName;
+  iconBackground?: ColorName;
   title: string;
   description: string;
+  /** Current setting, shown on the right. */
+  value?: string;
+  /** Rows without an action or value are shown as coming soon. */
+  onPress?: () => void;
   showDivider?: boolean;
 }
 
-/** Settings row for a feature that is not available yet. */
 export const ProfileOptionRow = (props: ProfileOptionRowProps) => {
-  const { icon, title, description, showDivider = false } = props;
+  const {
+    icon,
+    iconColor = 'primary',
+    iconBackground = 'primaryMuted',
+    title,
+    description,
+    value,
+    onPress,
+    showDivider = false,
+  } = props;
+  const isAvailable = !!onPress || !!value;
 
   return (
-    <View style={[styles.main, showDivider && styles.divider]}>
-      <View style={styles.iconBox}>
-        <Icon name={icon} size={20} color="primary" />
+    <Pressable
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={`${title}${isAvailable ? '' : ', coming soon'}`}
+      disabled={!onPress}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.main,
+        showDivider && styles.divider,
+        pressed && styles.pressed,
+      ]}
+    >
+      <View
+        style={[styles.iconBox, { backgroundColor: Colors[iconBackground] }]}
+      >
+        <Icon name={icon} size={22} color={iconColor} />
       </View>
       <View style={styles.texts}>
-        <Text weight="semiBold">{title}</Text>
+        <Text size="subtitle" weight="bold">
+          {title}
+        </Text>
         <Text size="caption" color="subtext" style={styles.description}>
           {description}
         </Text>
       </View>
-      <View style={styles.soonBadge}>
-        <Text size="caption" weight="medium" color="subtext">
-          Soon
-        </Text>
-      </View>
-    </View>
+      {isAvailable ? (
+        <View style={styles.trailing}>
+          {!!value && (
+            <Text size="caption" weight="semiBold" color="primaryDark">
+              {value}
+            </Text>
+          )}
+          {!!onPress && <Icon name="chevron-forward" size={16} color="text" />}
+        </View>
+      ) : (
+        <View style={styles.soonBadge}>
+          <Text size="caption" weight="medium" color="subtext">
+            Soon
+          </Text>
+        </View>
+      )}
+    </Pressable>
   );
 };
 
-const ICON_BOX_SIZE = 40;
+const ICON_BOX_SIZE = 44;
 
 const styles = StyleSheet.create({
   main: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: Spacing.md,
+    paddingVertical: Spacing.lg,
   },
   divider: {
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: Colors.border,
   },
+  pressed: {
+    opacity: 0.7,
+  },
   iconBox: {
     width: ICON_BOX_SIZE,
     height: ICON_BOX_SIZE,
-    borderRadius: Radius.md,
+    borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.primarySoft,
   },
   texts: {
     flex: 1,
@@ -63,6 +105,11 @@ const styles = StyleSheet.create({
   },
   description: {
     marginTop: 2,
+  },
+  trailing: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
   },
   soonBadge: {
     paddingVertical: Spacing.xs,

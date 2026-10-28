@@ -4,6 +4,7 @@ import { Pressable, StyleSheet } from 'react-native';
 import { Icon } from '@src/components/Icon';
 import { Colors } from '@src/constants/colors';
 import { Radius, Spacing } from '@src/constants/layout';
+import { Shadows } from '@src/constants/shadows';
 
 interface LocateButtonProps {
   active: boolean;
@@ -19,28 +20,24 @@ export const LocateButton = ({ active, onPress }: LocateButtonProps) => (
     style={({ pressed }) => [styles.main, pressed && styles.pressed]}
   >
     <Icon
-      name={active ? 'navigate' : 'navigate-outline'}
-      size={20}
-      color={active ? 'primary' : 'subtext'}
+      name={active ? 'compass' : 'compass-outline'}
+      size={24}
+      color={active ? 'primary' : 'text'}
     />
   </Pressable>
 );
 
-const SIZE = 44;
+const SIZE = 48;
 
 const styles = StyleSheet.create({
   main: {
     width: SIZE,
     height: SIZE,
-    borderRadius: Radius.md,
+    borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.cardBg,
-    shadowColor: Colors.black,
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 4,
+    ...Shadows.raised,
   },
   pressed: {
     opacity: 0.85,

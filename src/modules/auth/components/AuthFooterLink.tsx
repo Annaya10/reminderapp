@@ -15,13 +15,15 @@ export const AuthFooterLink = (props: AuthFooterLinkProps) => {
 
   return (
     <>
-      <Text color="subtext">{prompt} </Text>
+      <Text size="subtitle" color="subtext">
+        {prompt}{' '}
+      </Text>
       <Pressable
         accessibilityRole="link"
         hitSlop={Spacing.sm}
         onPress={onPress}
       >
-        <Text weight="semiBold" color="primary">
+        <Text size="subtitle" weight="bold" color="primary">
           {actionLabel}
         </Text>
       </Pressable>

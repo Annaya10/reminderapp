@@ -1,20 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import DateTimePicker, {
   DateTimePickerAndroid,
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 
-import { Icon, IconName } from '@src/components/Icon';
+import { Icon } from '@src/components/Icon';
 import { Text } from '@src/components/Text';
 import { Colors } from '@src/constants/colors';
 import { Radius, Spacing } from '@src/constants/layout';
-import {
-  formatShortDate,
-  formatTime,
-  withDate,
-  withTime,
-} from '@src/helpers/date';
+import { formatRelativeDateTime, withDate, withTime } from '@src/helpers/date';
 
 interface DateTimeFieldProps {
   label: string;
@@ -24,136 +19,106 @@ interface DateTimeFieldProps {
 }
 
 /**
- * Date and time selection. iOS shows the native compact pickers inline;
- * Android opens the system dialogs.
+ * A row showing the chosen date and time. Android opens the system date
+ * dialog followed by the time dialog; iOS expands an inline picker.
  */
 export const DateTimeField = (props: DateTimeFieldProps) => {
   const { label, value, onChange, minimumDate } = props;
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const openAndroidPickers = () =>
+    DateTimePickerAndroid.open({
+      value,
+      mode: 'date',
+      minimumDate,
+      onChange: (dateEvent, date) => {
+        if (dateEvent.type !== 'set' || !date) {
+          return;
+        }
+        const withNewDay = withDate(value, date);
+        onChange(withNewDay);
+        DateTimePickerAndroid.open({
+          value: withNewDay,
+          mode: 'time',
+          onChange: (timeEvent, time) =>
+            timeEvent.type === 'set' &&
+            time &&
+            onChange(withTime(withNewDay, time)),
+        });
+      },
+    });
+
+  const handlePress = () =>
+    Platform.OS === 'ios'
+      ? setIsExpanded(expanded => !expanded)
+      : openAndroidPickers();
 
   return (
-    <View>
-      <Text weight="medium" style={styles.label}>
-        {label}
-      </Text>
-      {Platform.OS === 'ios' ? (
-        <View style={styles.iosRow}>
-          <Icon name="calendar-outline" size={20} color="primary" />
-          <DateTimePicker
-            value={value}
-            mode="date"
-            display="compact"
-            minimumDate={minimumDate}
-            accentColor={Colors.primary}
-            onChange={(_event: DateTimePickerEvent, date?: Date) =>
-              date && onChange(withDate(value, date))
-            }
-          />
-          <DateTimePicker
-            value={value}
-            mode="time"
-            display="compact"
-            accentColor={Colors.primary}
-            onChange={(_event: DateTimePickerEvent, date?: Date) =>
-              date && onChange(withTime(value, date))
-            }
-          />
+    <View style={styles.main}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${label}, ${formatRelativeDateTime(value)}`}
+        accessibilityState={{ expanded: isExpanded }}
+        onPress={handlePress}
+        style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      >
+        <View style={styles.iconBox}>
+          <Icon name="time-outline" size={22} color="primary" />
         </View>
-      ) : (
-        <View style={styles.androidRow}>
-          <PickerButton
-            icon="calendar-outline"
-            label={formatShortDate(value)}
-            accessibilityLabel={`${label} date`}
-            onPress={() =>
-              DateTimePickerAndroid.open({
-                value,
-                mode: 'date',
-                minimumDate,
-                onChange: (event, date) =>
-                  event.type === 'set' &&
-                  date &&
-                  onChange(withDate(value, date)),
-              })
-            }
-          />
-          <PickerButton
-            icon="time-outline"
-            label={formatTime(value)}
-            accessibilityLabel={`${label} time`}
-            onPress={() =>
-              DateTimePickerAndroid.open({
-                value,
-                mode: 'time',
-                onChange: (event, date) =>
-                  event.type === 'set' &&
-                  date &&
-                  onChange(withTime(value, date)),
-              })
-            }
-          />
+        <View style={styles.texts}>
+          <Text size="caption" weight="medium" color="subtext">
+            {label}
+          </Text>
+          <Text size="large" weight="bold" numberOfLines={1}>
+            {formatRelativeDateTime(value)}
+          </Text>
         </View>
+        <Icon
+          name={isExpanded ? 'chevron-up' : 'chevron-forward'}
+          size={20}
+          color="subtext"
+        />
+      </Pressable>
+      {Platform.OS === 'ios' && isExpanded && (
+        <DateTimePicker
+          value={value}
+          mode="datetime"
+          display="spinner"
+          minimumDate={minimumDate}
+          accentColor={Colors.primary}
+          textColor={Colors.text}
+          onChange={(_event: DateTimePickerEvent, date?: Date) =>
+            date && onChange(date)
+          }
+        />
       )}
     </View>
   );
 };
 
-interface PickerButtonProps {
-  icon: IconName;
-  label: string;
-  accessibilityLabel: string;
-  onPress: () => void;
-}
-
-const PickerButton = (props: PickerButtonProps) => {
-  const { icon, label, accessibilityLabel, onPress } = props;
-
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel}
-      onPress={onPress}
-      style={({ pressed }) => [styles.pickerButton, pressed && styles.pressed]}
-    >
-      <Icon name={icon} size={18} color="primary" />
-      <Text weight="medium" style={styles.pickerLabel}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-};
+const ICON_BOX_SIZE = 44;
 
 const styles = StyleSheet.create({
-  label: {
-    marginBottom: Spacing.sm,
-  },
-  iosRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    minHeight: 48,
-    paddingHorizontal: Spacing.md,
+  main: {
     borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
     backgroundColor: Colors.inputBg,
   },
-  androidRow: {
+  row: {
     flexDirection: 'row',
-    gap: Spacing.sm,
+    alignItems: 'center',
+    gap: Spacing.md,
+    padding: Spacing.md,
   },
-  pickerButton: {
+  iconBox: {
+    width: ICON_BOX_SIZE,
+    height: ICON_BOX_SIZE,
+    borderRadius: Radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.primaryMuted,
+  },
+  texts: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: 48,
-    paddingHorizontal: Spacing.md,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.inputBg,
-  },
-  pickerLabel: {
-    marginLeft: Spacing.sm,
   },
   pressed: {
     opacity: 0.85,

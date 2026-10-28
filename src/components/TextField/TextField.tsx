@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -14,8 +14,15 @@ import { FontSizes, Fonts } from '@src/constants/fonts';
 import { Radius, Spacing } from '@src/constants/layout';
 
 interface TextFieldProps extends TextInputProps {
+  /** Shown in capitals above the input; also the input's accessibility label. */
   label: string;
+  /** Extra content on the right of the label row, e.g. a character count. */
+  labelAccessory?: ReactNode;
   icon?: IconName;
+  /** Decorative icon inside the input, on the right. */
+  trailingIcon?: IconName;
+  /** Helper text shown under the input while there is no error. */
+  hint?: string;
   error?: string;
 }
 
@@ -25,7 +32,10 @@ interface TextFieldProps extends TextInputProps {
 export const TextField = (props: TextFieldProps) => {
   const {
     label,
+    labelAccessory,
     icon,
+    trailingIcon,
+    hint,
     error,
     multiline,
     secureTextEntry,
@@ -39,9 +49,12 @@ export const TextField = (props: TextFieldProps) => {
 
   return (
     <View>
-      <Text weight="medium" style={styles.label}>
-        {label}
-      </Text>
+      <View style={styles.labelRow}>
+        <Text weight="semiBold" size="caption" style={styles.label}>
+          {label}
+        </Text>
+        {labelAccessory}
+      </View>
       <View
         style={[
           styles.inputBox,
@@ -55,7 +68,7 @@ export const TextField = (props: TextFieldProps) => {
             <Icon
               name={icon}
               size={20}
-              color={isFocused ? 'primary' : 'placeholder'}
+              color={isFocused ? 'primary' : 'subtext'}
             />
           </View>
         )}
@@ -74,9 +87,14 @@ export const TextField = (props: TextFieldProps) => {
             setIsFocused(false);
             onBlur?.(event);
           }}
-          style={[styles.input, multiline && styles.multiline, style]}
+          style={[
+            styles.input,
+            !!icon && styles.inputWithIcon,
+            multiline && styles.multiline,
+            style,
+          ]}
         />
-        {secureTextEntry && (
+        {secureTextEntry ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={
@@ -92,28 +110,50 @@ export const TextField = (props: TextFieldProps) => {
               color="subtext"
             />
           </Pressable>
+        ) : (
+          !!trailingIcon && (
+            <View style={styles.rightIcon}>
+              <Icon name={trailingIcon} size={20} color="primary" />
+            </View>
+          )
         )}
       </View>
-      {!!error && (
-        <Text size="caption" color="danger" style={styles.error}>
+      {error ? (
+        <Text size="caption" color="danger" style={styles.helper}>
           {error}
         </Text>
+      ) : (
+        !!hint && (
+          <View style={styles.hintRow}>
+            <Icon name="information-circle" size={14} color="primary" />
+            <Text size="caption" color="subtext">
+              {hint}
+            </Text>
+          </View>
+        )
       )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  label: {
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: Spacing.sm,
+  },
+  label: {
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
   },
   inputBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 48,
+    minHeight: 52,
     borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    borderWidth: 1.5,
+    borderColor: Colors.transparent,
     backgroundColor: Colors.inputBg,
   },
   multilineBox: {
@@ -127,26 +167,36 @@ const styles = StyleSheet.create({
     borderColor: Colors.danger,
   },
   leftIcon: {
-    paddingLeft: Spacing.md,
+    paddingLeft: Spacing.lg,
   },
   input: {
     ...Fonts.regular,
     flex: 1,
-    minHeight: 46,
-    paddingHorizontal: Spacing.md,
+    minHeight: 49,
+    paddingHorizontal: Spacing.lg,
     color: Colors.text,
     fontSize: FontSizes.subtitle,
   },
+  inputWithIcon: {
+    paddingLeft: Spacing.md,
+  },
   multiline: {
-    minHeight: 88,
+    minHeight: 84,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.md,
     textAlignVertical: 'top',
   },
   rightIcon: {
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    alignSelf: 'center',
   },
-  error: {
+  helper: {
+    marginTop: Spacing.xs,
+  },
+  hintRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
     marginTop: Spacing.xs,
   },
 });

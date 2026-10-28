@@ -2,10 +2,12 @@ import React, { ReactNode } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@src/components/Icon';
@@ -17,8 +19,16 @@ import { useResponsive } from '@src/hooks/useResponsive';
 import { BrandMark } from '@src/modules/auth/components/BrandMark';
 
 interface AuthLayoutProps {
+  /** Short name shown in the top bar, e.g. "Login". */
+  screenTitle: string;
   title: string;
   subtitle: string;
+  /**
+   * "centered": brand mark and centered heading, form on a white card.
+   * "plain": left-aligned heading with an optional eyebrow chip.
+   */
+  variant?: 'centered' | 'plain';
+  eyebrow?: string;
   /** Form-level error, e.g. wrong credentials. */
   error?: string | null;
   children: ReactNode;
@@ -26,9 +36,20 @@ interface AuthLayoutProps {
 }
 
 export const AuthLayout = (props: AuthLayoutProps) => {
-  const { title, subtitle, error, children, footer } = props;
+  const {
+    screenTitle,
+    title,
+    subtitle,
+    variant = 'centered',
+    eyebrow,
+    error,
+    children,
+    footer,
+  } = props;
+  const navigation = useNavigation();
   const { top, bottom } = useSafeAreaInsets();
   const { contentMaxWidth } = useResponsive();
+  const isCentered = variant === 'centered';
 
   return (
     <KeyboardAvoidingView
@@ -38,24 +59,75 @@ export const AuthLayout = (props: AuthLayoutProps) => {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          {
-            paddingTop: top + Spacing.xxl,
-            paddingBottom: bottom + Spacing.xl,
-          },
+          { paddingTop: top + Spacing.sm, paddingBottom: bottom + Spacing.xl },
         ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.inner, { maxWidth: contentMaxWidth }]}>
-          <BrandMark />
-          <Text size="heading" weight="bold" style={styles.title}>
-            {title}
-          </Text>
-          <Text color="subtext" style={styles.subtitle}>
-            {subtitle}
-          </Text>
+          <View style={styles.topBar}>
+            {navigation.canGoBack() && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Go back"
+                hitSlop={Spacing.sm}
+                onPress={navigation.goBack}
+                style={styles.back}
+              >
+                <Icon name="chevron-back" size={26} color="text" />
+              </Pressable>
+            )}
+            <Icon name="location" size={22} color="primary" />
+            <Text
+              size="title"
+              weight="bold"
+              style={styles.topBarTitle}
+              accessibilityRole="header"
+            >
+              {screenTitle}
+            </Text>
+          </View>
 
-          <View style={styles.card}>
+          {isCentered ? (
+            <View style={styles.centeredIntro}>
+              <BrandMark />
+              <Text
+                size="heading"
+                weight="bold"
+                alignCenter
+                style={styles.title}
+              >
+                {title}
+              </Text>
+              <Text
+                color="subtext"
+                size="subtitle"
+                alignCenter
+                style={styles.subtitle}
+              >
+                {subtitle}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.plainIntro}>
+              {!!eyebrow && (
+                <View style={styles.eyebrow}>
+                  <Icon name="navigate-outline" size={12} color="primaryDark" />
+                  <Text size="caption" weight="semiBold" color="primaryDark">
+                    {eyebrow}
+                  </Text>
+                </View>
+              )}
+              <Text weight="bold" style={styles.plainTitle}>
+                {title}
+              </Text>
+              <Text color="subtext" size="subtitle" style={styles.subtitle}>
+                {subtitle}
+              </Text>
+            </View>
+          )}
+
+          <View style={[styles.form, isCentered && styles.formCard]}>
             {!!error && (
               <View style={styles.errorBanner} accessibilityRole="alert">
                 <Icon name="alert-circle-outline" size={18} color="danger" />
@@ -65,14 +137,6 @@ export const AuthLayout = (props: AuthLayoutProps) => {
               </View>
             )}
             {children}
-          </View>
-
-          <View style={styles.demoNotice}>
-            <Icon name="information-circle-outline" size={16} color="subtext" />
-            <Text size="caption" color="subtext" style={styles.demoText}>
-              Demo mode: accounts are stored only on this device and are not
-              protected by a server.
-            </Text>
           </View>
 
           <View style={styles.footer}>{footer}</View>
@@ -95,19 +159,51 @@ const styles = StyleSheet.create({
   inner: {
     width: '100%',
   },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 44,
+    marginBottom: Spacing.md,
+  },
+  back: {
+    marginRight: Spacing.md,
+  },
+  topBarTitle: {
+    marginLeft: Spacing.sm,
+  },
+  centeredIntro: {
+    alignItems: 'center',
+    marginBottom: Spacing.xl,
+  },
   title: {
-    marginTop: Spacing.xl,
+    marginTop: Spacing.lg,
   },
   subtitle: {
-    marginTop: Spacing.xs,
+    marginTop: Spacing.sm,
   },
-  card: {
+  plainIntro: {
+    alignItems: 'flex-start',
+    marginBottom: Spacing.xl,
+  },
+  eyebrow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.md,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.primaryMuted,
+  },
+  plainTitle: {
+    fontSize: 30,
+  },
+  form: {
     gap: Spacing.lg,
-    marginTop: Spacing.xl,
+  },
+  formCard: {
     padding: Spacing.lg,
     borderRadius: Radius.xl,
-    borderWidth: 1,
-    borderColor: Colors.border,
     backgroundColor: Colors.cardBg,
     ...Shadows.card,
   },
@@ -122,19 +218,10 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: Spacing.sm,
   },
-  demoNotice: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginTop: Spacing.lg,
-    paddingHorizontal: Spacing.xs,
-  },
-  demoText: {
-    flex: 1,
-    marginLeft: Spacing.sm,
-  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
     marginTop: Spacing.xl,
   },
 });

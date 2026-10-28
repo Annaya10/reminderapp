@@ -10,23 +10,44 @@ interface BrandMarkProps {
   size?: number;
 }
 
-/** App mark: a bell on the primary color, used on splash and auth screens. */
-export const BrandMark = ({ size = 64 }: BrandMarkProps) => (
+const HALO_WIDTH = 6;
+
+/** App mark: a location pin on a rounded indigo tile with a soft halo. */
+export const BrandMark = ({ size = 80 }: BrandMarkProps) => (
   <View
-    style={[styles.main, { width: size, height: size }]}
+    style={[
+      styles.halo,
+      {
+        width: size + HALO_WIDTH * 2,
+        height: size + HALO_WIDTH * 2,
+        borderRadius: size * 0.3 + HALO_WIDTH,
+      },
+    ]}
     accessibilityElementsHidden
     importantForAccessibility="no-hide-descendants"
   >
-    <Icon name="notifications" size={Math.round(size * 0.45)} color="white" />
+    <View
+      style={[
+        styles.main,
+        { width: size, height: size, borderRadius: size * 0.3 },
+      ]}
+    >
+      <Icon name="location" size={Math.round(size * 0.45)} color="white" />
+    </View>
   </View>
 );
 
 const styles = StyleSheet.create({
+  halo: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: Radius.xl,
+    backgroundColor: Colors.primaryMuted,
+  },
   main: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: Radius.lg,
     backgroundColor: Colors.primary,
-    ...Shadows.raised,
+    ...Shadows.primary,
   },
 });

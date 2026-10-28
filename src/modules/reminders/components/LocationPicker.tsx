@@ -14,10 +14,12 @@ import { Text } from '@src/components/Text';
 import { Colors } from '@src/constants/colors';
 import { MapConfig } from '@src/constants/config';
 import { Radius, Spacing } from '@src/constants/layout';
+import { Shadows } from '@src/constants/shadows';
 import {
   bearingBetween,
   destinationPoint,
   distanceBetween,
+  formatDistance,
   getCircleBounds,
 } from '@src/helpers/geo';
 import { useResponsive } from '@src/hooks/useResponsive';
@@ -48,9 +50,10 @@ const CAMERA_PADDING = {
   paddingRight: Spacing.xl,
 };
 
-/** The map takes this share of the screen height, up to a maximum. */
-const MAP_HEIGHT_RATIO = 0.45;
-const MAP_MAX_HEIGHT = 420;
+/** The map takes this share of the screen height, within limits. */
+const MAP_HEIGHT_RATIO = 0.3;
+const MAP_MIN_HEIGHT = 200;
+const MAP_MAX_HEIGHT = 320;
 
 /** Radius handle starts on the east edge of the circle. */
 const DEFAULT_HANDLE_BEARING = Math.PI / 2;
@@ -135,7 +138,12 @@ export const LocationPicker = (props: LocationPickerProps) => {
         ref={mapContainerRef}
         style={[
           styles.mapCard,
-          { height: Math.min(MAP_MAX_HEIGHT, height * MAP_HEIGHT_RATIO) },
+          {
+            height: Math.min(
+              MAP_MAX_HEIGHT,
+              Math.max(MAP_MIN_HEIGHT, height * MAP_HEIGHT_RATIO),
+            ),
+          },
         ]}
       >
         <Mapbox.MapView
@@ -145,6 +153,8 @@ export const LocationPicker = (props: LocationPickerProps) => {
           scrollEnabled={!isDragging}
           zoomEnabled={!isDragging}
           styleURL={Mapbox.StyleURL.Street}
+          // TextureView, so the map is clipped to its rounded card on Android.
+          surfaceView={false}
           compassEnabled={false}
           scaleBarEnabled={false}
           onPress={handleMapPress}
@@ -191,6 +201,12 @@ export const LocationPicker = (props: LocationPickerProps) => {
             </>
           )}
         </Mapbox.MapView>
+        {!!coordinate && (
+          <View style={styles.radiusPill} pointerEvents="none">
+            <Icon name="radio-button-on" size={16} color="primary" />
+            <Text weight="bold">Radius: {formatDistance(radius)}</Text>
+          </View>
+        )}
       </View>
 
       {coordinate ? (
@@ -227,11 +243,23 @@ const styles = StyleSheet.create({
   mapCard: {
     overflow: 'hidden',
     borderRadius: Radius.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    backgroundColor: Colors.inputBg,
   },
   map: {
     flex: 1,
+  },
+  radiusPill: {
+    position: 'absolute',
+    left: Spacing.md,
+    bottom: Spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.cardBg,
+    ...Shadows.card,
   },
   hint: {
     marginTop: Spacing.md,

@@ -3,10 +3,10 @@ import { StyleSheet, View } from 'react-native';
 
 import { Icon, IconName } from '@src/components/Icon';
 import { Colors } from '@src/constants/colors';
-import { Radius, Spacing } from '@src/constants/layout';
+import { Radius } from '@src/constants/layout';
+import { Shadows } from '@src/constants/shadows';
 
-export const TAB_CIRCLE_SIZE = 60;
-const RING_WIDTH = 4;
+export const TAB_CIRCLE_SIZE = 58;
 
 interface TabCircleIconProps {
   name: IconName;
@@ -23,17 +23,11 @@ const styles = StyleSheet.create({
   main: {
     width: TAB_CIRCLE_SIZE,
     height: TAB_CIRCLE_SIZE,
-    marginTop: -Spacing.xl,
+    marginTop: -TAB_CIRCLE_SIZE / 2,
     borderRadius: Radius.full,
-    borderWidth: RING_WIDTH,
-    borderColor: Colors.cardBg,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.primary,
-    shadowColor: Colors.primary,
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
+    ...Shadows.primary,
   },
 });

@@ -3,11 +3,10 @@ import { StyleSheet, View, ViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Colors } from '@src/constants/colors';
-import { Radius, Spacing } from '@src/constants/layout';
-import { Shadows } from '@src/constants/shadows';
+import { Spacing } from '@src/constants/layout';
 import { useResponsive } from '@src/hooks/useResponsive';
 
-/** Raised header panel that extends behind the status bar. */
+/** Header panel that extends behind the status bar, on the screen background. */
 export const HeaderSurface = (props: ViewProps) => {
   const { children, style, ...rest } = props;
   const { top } = useSafeAreaInsets();
@@ -26,10 +25,7 @@ const styles = StyleSheet.create({
   main: {
     width: '100%',
     alignItems: 'center',
-    backgroundColor: Colors.cardBg,
-    borderBottomLeftRadius: Radius.xl,
-    borderBottomRightRadius: Radius.xl,
-    ...Shadows.raised,
+    backgroundColor: Colors.screenBg,
   },
   content: {
     width: '100%',

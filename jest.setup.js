@@ -29,3 +29,14 @@ jest.mock(
   'react-native-safe-area-context',
   () => require('react-native-safe-area-context/jest/mock').default,
 );
+
+// Firebase native modules are unavailable in Jest; behave as if the Firebase
+// config files were not added, so push messaging stays off.
+jest.mock('@react-native-firebase/app', () => ({ getApps: () => [] }));
+jest.mock('@react-native-firebase/messaging', () => ({
+  getMessaging: jest.fn(),
+  getToken: jest.fn(),
+  onMessage: jest.fn(() => () => {}),
+  onTokenRefresh: jest.fn(() => () => {}),
+  setBackgroundMessageHandler: jest.fn(),
+}));

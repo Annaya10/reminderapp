@@ -6,6 +6,7 @@ import {
 } from '@react-navigation/native';
 
 import { Colors } from '@src/constants/colors';
+import { AlertsProvider } from '@src/context/AlertsContext';
 import { useAuth } from '@src/context/AuthContext';
 import { RemindersProvider } from '@src/context/RemindersContext';
 import { SplashScreen } from '@src/modules/boot/SplashScreen';
@@ -39,7 +40,9 @@ export const AppRoutes = () => {
     <NavigationContainer theme={navigationTheme}>
       {user ? (
         <RemindersProvider key={user.id} userId={user.id}>
-          <MainStack />
+          <AlertsProvider>
+            <MainStack />
+          </AlertsProvider>
         </RemindersProvider>
       ) : (
         <AuthStack />

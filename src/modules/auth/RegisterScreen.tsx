@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import { Button } from '@src/components/Button';
+import { Icon } from '@src/components/Icon';
+import { Text } from '@src/components/Text';
 import { TextField } from '@src/components/TextField';
+import { Colors } from '@src/constants/colors';
+import { Radius, Spacing } from '@src/constants/layout';
 import { useAuth } from '@src/context/AuthContext';
 import {
+  MIN_PASSWORD_LENGTH,
   validateEmail,
   validateName,
   validatePassword,
@@ -51,6 +57,9 @@ export const RegisterScreen = () => {
 
   return (
     <AuthLayout
+      screenTitle="Register"
+      variant="plain"
+      eyebrow="Geo-Smart Task Assistant"
       title="Create account"
       subtitle="Save reminders for the places that matter."
       error={formError}
@@ -65,7 +74,7 @@ export const RegisterScreen = () => {
       <TextField
         label="Full name"
         icon="person-outline"
-        placeholder="Your name"
+        placeholder="Alex Morgan"
         value={name}
         onChangeText={value => {
           setName(value);
@@ -77,9 +86,9 @@ export const RegisterScreen = () => {
         returnKeyType="next"
       />
       <TextField
-        label="Email"
+        label="Email address"
         icon="mail-outline"
-        placeholder="you@example.com"
+        placeholder="alex@example.com"
         value={email}
         onChangeText={value => {
           setEmail(value);
@@ -95,13 +104,14 @@ export const RegisterScreen = () => {
       <TextField
         label="Password"
         icon="lock-closed-outline"
-        placeholder="At least 6 characters"
+        placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
         value={password}
         onChangeText={value => {
           setPassword(value);
           clearError('password');
         }}
         error={errors.password}
+        hint={`At least ${MIN_PASSWORD_LENGTH} characters`}
         secureTextEntry
         autoCapitalize="none"
         autoComplete="new-password"
@@ -110,8 +120,8 @@ export const RegisterScreen = () => {
       />
       <TextField
         label="Confirm password"
-        icon="lock-closed-outline"
-        placeholder="Repeat your password"
+        icon="refresh-outline"
+        placeholder="Repeat password"
         value={confirmPassword}
         onChangeText={value => {
           setConfirmPassword(value);
@@ -125,11 +135,54 @@ export const RegisterScreen = () => {
         returnKeyType="done"
         onSubmitEditing={handleSubmit}
       />
+
+      <View style={styles.notice}>
+        <View style={styles.noticeIcon}>
+          <Icon name="location" size={18} color="primaryDark" />
+        </View>
+        <View style={styles.noticeTexts}>
+          <Text weight="bold">Spatial Trigger Notice</Text>
+          <Text size="caption" color="subtext" style={styles.noticeBody}>
+            Allow location access, including in the background, so you get an
+            alert when you arrive at a reminder's place on its due date.
+          </Text>
+        </View>
+      </View>
+
       <Button
         label="Create Account"
+        trailingIcon="arrow-forward"
         loading={isSubmitting}
         onPress={handleSubmit}
       />
     </AuthLayout>
   );
 };
+
+const NOTICE_ICON_SIZE = 40;
+
+const styles = StyleSheet.create({
+  notice: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
+    padding: Spacing.lg,
+    borderRadius: Radius.lg,
+    backgroundColor: Colors.primarySoft,
+  },
+  noticeIcon: {
+    width: NOTICE_ICON_SIZE,
+    height: NOTICE_ICON_SIZE,
+    borderRadius: Radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.primaryMuted,
+  },
+  noticeTexts: {
+    flex: 1,
+  },
+  noticeBody: {
+    marginTop: 2,
+    lineHeight: 18,
+  },
+});

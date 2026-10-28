@@ -1,40 +1,30 @@
 import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Alert, Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { Button } from '@src/components/Button';
 import { ScreenHeader } from '@src/components/ScreenHeader';
-import { SectionHeader } from '@src/components/SectionHeader';
+import { Text } from '@src/components/Text';
 import { Colors } from '@src/constants/colors';
 import { Radius, Spacing } from '@src/constants/layout';
 import { Shadows } from '@src/constants/shadows';
 import { useAuth, useCurrentUser } from '@src/context/AuthContext';
+import { useReminders } from '@src/context/RemindersContext';
 import { useResponsive } from '@src/hooks/useResponsive';
 import { ProfileOptionRow } from '@src/modules/profile/components/ProfileOptionRow';
 import { ProfileSummaryCard } from '@src/modules/profile/components/ProfileSummaryCard';
-import { MainStackNavigation } from '@src/routes/types';
-
-const OPTIONS = [
-  {
-    icon: 'notifications-outline',
-    title: 'Notifications',
-    description: 'Alerts when you reach a reminder area',
-  },
-  {
-    icon: 'cloud-outline',
-    title: 'Backup & sync',
-    description: 'Keep your reminders safe across devices',
-  },
-] as const;
+import { useAlertSetup } from '@src/modules/reminders/hooks/useAlertSetupPrompt';
 
 export const ProfileScreen = () => {
-  const navigation = useNavigation<MainStackNavigation>();
   const user = useCurrentUser();
   const { logout } = useAuth();
-  const { bottom } = useSafeAreaInsets();
+  const { reminders } = useReminders();
+  const tabBarHeight = useBottomTabBarHeight();
   const { contentMaxWidth } = useResponsive();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const alerts = useAlertSetup();
+
+  const completedCount = reminders.filter(item => item.isCompleted).length;
 
   const handleLogout = () =>
     Alert.alert(
@@ -61,34 +51,86 @@ export const ProfileScreen = () => {
 
   return (
     <View style={styles.main}>
-      <ScreenHeader
-        title="Profile"
-        subtitle="Your account and app settings"
-        onBackPress={navigation.goBack}
-      />
+      <ScreenHeader title="Profile" />
 
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: bottom + Spacing.xl },
+          { paddingBottom: tabBarHeight + Spacing.xl },
         ]}
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.inner, { maxWidth: contentMaxWidth }]}>
-          <ProfileSummaryCard name={user.name} email={user.email} />
+          <View>
+            <Text size="heading" weight="bold">
+              Profile
+            </Text>
+            <Text color="subtext" style={styles.subheading}>
+              Your account and app settings
+            </Text>
+          </View>
 
-          <View style={styles.section}>
-            <SectionHeader title="Settings" />
+          <ProfileSummaryCard
+            name={user.name}
+            email={user.email}
+            totalCount={reminders.length}
+            completedCount={completedCount}
+            activeCount={reminders.length - completedCount}
+          />
+
+          <View>
+            <Text size="large" weight="semiBold" style={styles.sectionTitle}>
+              App Preferences
+            </Text>
             <View style={styles.card}>
-              {OPTIONS.map((option, index) => (
-                <ProfileOptionRow
-                  key={option.title}
-                  icon={option.icon}
-                  title={option.title}
-                  description={option.description}
-                  showDivider={index > 0}
-                />
-              ))}
+              <ProfileOptionRow
+                icon="notifications-outline"
+                title="Arrival Alerts"
+                description={
+                  alerts.isEnabled
+                    ? 'Sound alert when you reach a reminder on its due date'
+                    : 'Needs notifications and location set to "Always"'
+                }
+                value={
+                  !alerts.status
+                    ? undefined
+                    : alerts.isEnabled
+                    ? 'On'
+                    : 'Turn on'
+                }
+                onPress={
+                  !alerts.status
+                    ? undefined
+                    : alerts.isEnabled
+                    ? alerts.openSettings
+                    : alerts.setUp
+                }
+              />
+              <ProfileOptionRow
+                icon="locate-outline"
+                title="Location Access"
+                description="Lets the map show where you are"
+                value="Settings"
+                onPress={() => Linking.openSettings()}
+                showDivider
+              />
+              <ProfileOptionRow
+                icon="sync-outline"
+                iconColor="success"
+                iconBackground="successBg"
+                title="Backup & Sync"
+                description="Reminders are stored on this device"
+                showDivider
+              />
+              <ProfileOptionRow
+                icon="color-palette-outline"
+                iconColor="primaryDark"
+                iconBackground="primarySoft"
+                title="Appearance"
+                description="Light theme"
+                value="Light"
+                showDivider
+              />
             </View>
           </View>
 
@@ -97,9 +139,17 @@ export const ProfileScreen = () => {
             icon="log-out-outline"
             variant="danger"
             loading={isLoggingOut}
-            style={styles.logout}
             onPress={handleLogout}
           />
+
+          <View>
+            <Text size="caption" weight="medium" color="subtext" alignCenter>
+              ReminderApp
+            </Text>
+            <Text size="caption" color="placeholder" alignCenter>
+              Made with precision for mobile wanderers
+            </Text>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -113,24 +163,23 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: 'center',
-    paddingTop: Spacing.xl,
     paddingHorizontal: Spacing.lg,
   },
   inner: {
     width: '100%',
+    gap: Spacing.xl,
   },
-  section: {
-    marginTop: Spacing.xl,
+  subheading: {
+    marginTop: 2,
+  },
+  sectionTitle: {
+    marginBottom: Spacing.md,
+    marginLeft: Spacing.xs,
   },
   card: {
     paddingHorizontal: Spacing.lg,
-    borderRadius: Radius.lg,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    borderRadius: Radius.xl,
     backgroundColor: Colors.cardBg,
     ...Shadows.card,
-  },
-  logout: {
-    marginTop: Spacing.xl,
   },
 });

@@ -89,6 +89,10 @@ export const getCircleBounds = (center: Position, radius: number) => {
   };
 };
 
+/** e.g. "51.5072, -0.1276" (latitude first, as map apps show it). */
+export const formatCoordinate = ([lng, lat]: Position): string =>
+  `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+
 export const formatDistance = (meters: number): string =>
   meters >= 1000
     ? `${Number((meters / 1000).toFixed(2))} km`

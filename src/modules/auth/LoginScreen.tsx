@@ -38,19 +38,20 @@ export const LoginScreen = () => {
 
   return (
     <AuthLayout
+      screenTitle="Login"
       title="Welcome back"
-      subtitle="Log in to see your location reminders."
+      subtitle="Log in to see your location reminders and geo-smart tasks."
       error={formError}
       footer={
         <AuthFooterLink
           prompt="Don't have an account?"
-          actionLabel="Create one"
+          actionLabel="Sign up"
           onPress={() => navigation.navigate(Screens.register)}
         />
       }
     >
       <TextField
-        label="Email"
+        label="Email address"
         icon="mail-outline"
         placeholder="you@example.com"
         value={email}
@@ -82,7 +83,12 @@ export const LoginScreen = () => {
         returnKeyType="done"
         onSubmitEditing={handleSubmit}
       />
-      <Button label="Log In" loading={isSubmitting} onPress={handleSubmit} />
+      <Button
+        label="Log In"
+        trailingIcon="arrow-forward"
+        loading={isSubmitting}
+        onPress={handleSubmit}
+      />
     </AuthLayout>
   );
 };

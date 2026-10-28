@@ -25,12 +25,12 @@ export type BottomTabParamList = {
   [Screens.home]: HomeParams | undefined;
   [Screens.addReminder]: undefined;
   [Screens.myReminders]: undefined;
+  [Screens.profile]: undefined;
 };
 
 export type MainStackParamList = {
   [Screens.navigators.bottomTabs]: NavigatorScreenParams<BottomTabParamList>;
   [Screens.reminderDetails]: { reminderId: string };
-  [Screens.profile]: undefined;
 };
 
 export type AuthNavigation = NativeStackNavigationProp<AuthStackParamList>;

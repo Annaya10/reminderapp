@@ -12,12 +12,15 @@ import { Icon, IconName } from '@src/components/Icon';
 import { Text } from '@src/components/Text';
 import { ColorName, Colors } from '@src/constants/colors';
 import { Radius, Spacing } from '@src/constants/layout';
+import { Shadows } from '@src/constants/shadows';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger';
 
 interface ButtonProps extends Omit<PressableProps, 'style'> {
   label: string;
   icon?: IconName;
+  /** Icon shown after the label, e.g. an arrow. */
+  trailingIcon?: IconName;
   variant?: ButtonVariant;
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -33,6 +36,7 @@ export const Button = (props: ButtonProps) => {
   const {
     label,
     icon,
+    trailingIcon,
     variant = 'primary',
     loading = false,
     disabled,
@@ -60,15 +64,18 @@ export const Button = (props: ButtonProps) => {
         <ActivityIndicator color={Colors[contentColor]} />
       ) : (
         <>
-          {!!icon && <Icon name={icon} size={18} color={contentColor} />}
+          {!!icon && <Icon name={icon} size={20} color={contentColor} />}
           <Text
             weight="semiBold"
+            size="subtitle"
             color={contentColor}
             numberOfLines={1}
-            style={!!icon && styles.labelWithIcon}
           >
             {label}
           </Text>
+          {!!trailingIcon && (
+            <Icon name={trailingIcon} size={18} color={contentColor} />
+          )}
         </>
       )}
     </Pressable>
@@ -77,20 +84,17 @@ export const Button = (props: ButtonProps) => {
 
 const styles = StyleSheet.create({
   main: {
-    minHeight: 48,
+    minHeight: 52,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: Spacing.sm,
     paddingHorizontal: Spacing.lg,
     borderRadius: Radius.md,
   },
   primary: {
     backgroundColor: Colors.primary,
-    shadowColor: Colors.primary,
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
+    ...Shadows.primary,
   },
   secondary: {
     backgroundColor: Colors.primarySoft,
@@ -103,8 +107,5 @@ const styles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.5,
-  },
-  labelWithIcon: {
-    marginLeft: Spacing.xs,
   },
 });

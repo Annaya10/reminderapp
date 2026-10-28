@@ -11,6 +11,7 @@ import { FontSizes, Fonts } from '@src/constants/fonts';
 import { Radius, Spacing } from '@src/constants/layout';
 import { Screens } from '@src/constants/screens';
 import { Shadows } from '@src/constants/shadows';
+import { ProfileScreen } from '@src/modules/profile/ProfileScreen';
 import { MyRemindersScreen } from '@src/modules/reminders/MyRemindersScreen';
 import { ReminderHomeScreen } from '@src/modules/reminders/ReminderHomeScreen';
 import {
@@ -21,7 +22,7 @@ import { BottomTabParamList } from '@src/routes/types';
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
-const TAB_BAR_HEIGHT = 64;
+const TAB_BAR_HEIGHT = 68;
 
 const renderTabIcon =
   (
@@ -33,7 +34,7 @@ const renderTabIcon =
       <Icon
         name={focused ? activeIcon : inactiveIcon}
         size={24}
-        color={focused ? 'primary' : 'placeholder'}
+        color={focused ? 'primary' : 'text'}
       />
     );
 
@@ -50,7 +51,7 @@ export const BottomTabs = () => {
   const screenOptions: BottomTabNavigationOptions = {
     headerShown: false,
     tabBarActiveTintColor: Colors.primary,
-    tabBarInactiveTintColor: Colors.placeholder,
+    tabBarInactiveTintColor: Colors.text,
     tabBarStyle: {
       position: 'absolute',
       height: TAB_BAR_HEIGHT + bottom,
@@ -64,6 +65,7 @@ export const BottomTabs = () => {
     tabBarLabelStyle: {
       ...Fonts.semiBold,
       fontSize: FontSizes.caption,
+      marginTop: 2,
     },
   };
 
@@ -74,7 +76,16 @@ export const BottomTabs = () => {
         component={ReminderHomeScreen}
         options={{
           title: 'Home',
-          tabBarIcon: renderTabIcon('map', 'map-outline'),
+          tabBarIcon: renderTabIcon('location', 'location-outline'),
+        }}
+      />
+      <Tab.Screen
+        name={Screens.myReminders}
+        component={MyRemindersScreen}
+        options={{
+          title: 'My Reminders',
+          tabBarLabel: 'Reminders',
+          tabBarIcon: renderTabIcon('list', 'list-outline'),
         }}
       />
       <Tab.Screen
@@ -83,6 +94,7 @@ export const BottomTabs = () => {
         options={{
           title: 'Add Reminder',
           tabBarLabel: renderNoLabel,
+          tabBarAccessibilityLabel: 'Add reminder',
           tabBarIcon: renderAddIcon,
           tabBarIconStyle: { width: TAB_CIRCLE_SIZE, height: TAB_CIRCLE_SIZE },
         }}
@@ -94,11 +106,11 @@ export const BottomTabs = () => {
         })}
       />
       <Tab.Screen
-        name={Screens.myReminders}
-        component={MyRemindersScreen}
+        name={Screens.profile}
+        component={ProfileScreen}
         options={{
-          title: 'My Reminders',
-          tabBarIcon: renderTabIcon('list', 'list-outline'),
+          title: 'Profile',
+          tabBarIcon: renderTabIcon('person', 'person-outline'),
         }}
       />
     </Tab.Navigator>

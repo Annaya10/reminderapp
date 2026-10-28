@@ -124,8 +124,8 @@ describe('ReminderFormSheet', () => {
 
     const remindAt = new Date(2026, 10, 3, 17, 45);
     ReactTestRenderer.act(() => {
-      getField(renderer, 'Title').props.onChangeText('  Buy milk ');
-      getField(renderer, 'Description').props.onChangeText(' 2 litres ');
+      getField(renderer, 'Reminder title').props.onChangeText('  Buy milk ');
+      getField(renderer, 'Notes (optional)').props.onChangeText(' 2 litres ');
       renderer.root.findByType(DateTimeField).props.onChange(remindAt);
     });
     expect(getButton(renderer, 'Save Reminder').props.disabled).toBe(false);
@@ -153,8 +153,10 @@ describe('ReminderFormSheet', () => {
     const onSave = jest.fn(async () => true);
     const renderer = renderSheet(savedReminder, { onSave });
 
-    expect(getField(renderer, 'Title').props.value).toBe('Gym');
-    expect(getField(renderer, 'Description').props.value).toBe('Bring towel');
+    expect(getField(renderer, 'Reminder title').props.value).toBe('Gym');
+    expect(getField(renderer, 'Notes (optional)').props.value).toBe(
+      'Bring towel',
+    );
     expect(
       renderer.root.findByType(DateTimeField).props.value.toISOString(),
     ).toBe(savedReminder.remindAt);

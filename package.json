@@ -12,6 +12,8 @@
   "dependencies": {
     "@op-engineering/op-sqlite": "^18.2.5",
     "@react-native-community/datetimepicker": "^9.2.1",
+    "@react-native-firebase/app": "26.4.0",
+    "@react-native-firebase/messaging": "26.4.0",
     "@react-native-vector-icons/ionicons": "^13.1.4",
     "@react-native/new-app-screen": "0.87.1",
     "@react-navigation/bottom-tabs": "^7.20.0",
@@ -43,6 +45,7 @@
     "eslint": "^8.19.0",
     "jest": "^29.6.3",
     "prettier": "2.8.8",
+    "react-native-dotenv": "^3.4.11",
     "react-test-renderer": "19.2.3",
     "typescript": "^6.0.3"
   },

@@ -1,3 +1,4 @@
+import FirebaseCore
 import UIKit
 import React
 import React_RCTAppDelegate
@@ -14,6 +15,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
+    // Firebase needs GoogleService-Info.plist from the Firebase console.
+    // Without it the app runs and arrival alerts work; push stays disabled.
+    if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
+      FirebaseApp.configure()
+    }
+    // Must start at launch: iOS relaunches the app in the background to
+    // deliver geofence entries.
+    GeofenceMonitor.shared.start()
+
     let delegate = ReactNativeDelegate()
     let factory = RCTReactNativeFactory(delegate: delegate)
     delegate.dependencyProvider = RCTAppDependencyProvider()

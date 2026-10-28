@@ -19,9 +19,9 @@ export const Avatar = ({ name, size = 44, onPress }: AvatarProps) => {
       accessibilityLabel={name}
     >
       <Text
-        weight="semiBold"
-        color="primary"
-        style={{ fontSize: Math.round(size * 0.38) }}
+        weight="bold"
+        color="primaryDark"
+        style={{ fontSize: Math.round(size * 0.36) }}
       >
         {getInitials(name)}
       </Text>
@@ -48,9 +48,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.primarySoft,
-    borderWidth: 2,
-    borderColor: Colors.cardBg,
+    backgroundColor: Colors.primaryMuted,
   },
   pressed: {
     opacity: 0.85,

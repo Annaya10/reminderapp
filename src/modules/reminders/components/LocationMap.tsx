@@ -20,7 +20,7 @@ export interface MapFocusRequest extends Geofence {
 
 interface LocationMapProps {
   reminders: Reminder[];
-  /** Space covered by overlays (header, tab bar) at the top and bottom. */
+  /** Space covered by overlays (cards) at the top and bottom of the map. */
   insetTop: number;
   insetBottom: number;
   /** When set, the camera stops following the user and shows this area. */
@@ -80,6 +80,8 @@ export const LocationMap = (props: LocationMapProps) => {
       <Mapbox.MapView
         style={styles.map}
         styleURL={Mapbox.StyleURL.Street}
+        // TextureView, so the map is clipped to its rounded container on Android.
+        surfaceView={false}
         compassEnabled={false}
         scaleBarEnabled={false}
         logoPosition={{ bottom: ornamentBottom, left: Spacing.sm }}
@@ -124,12 +126,15 @@ export const LocationMap = (props: LocationMapProps) => {
           />
         ))}
       </Mapbox.MapView>
-      <View style={[styles.controls, { top: insetTop + Spacing.lg }]}>
+      <View style={[styles.controls, { bottom: ornamentBottom + LOCATE_GAP }]}>
         <LocateButton active={isFollowingUser} onPress={handleLocatePress} />
       </View>
     </View>
   );
 };
+
+/** Keeps the locate button clear of the Mapbox logo and attribution. */
+const LOCATE_GAP = Spacing.xxl;
 
 const styles = StyleSheet.create({
   map: {
@@ -137,6 +142,6 @@ const styles = StyleSheet.create({
   },
   controls: {
     position: 'absolute',
-    right: Spacing.lg,
+    right: Spacing.md,
   },
 });
