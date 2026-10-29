@@ -23,7 +23,8 @@ final class ReminderGeofenceModule: NSObject {
                               latitude: latitude, longitude: longitude, radius: radius)
     }
     let result = GeofenceMonitor.shared.sync(parsed)
-    resolve(["watching": result.watching, "error": result.error ?? NSNull()])
+    let errorVal: Any = result.error ?? NSNull()
+    resolve(["watching": result.watching, "error": errorVal])
   }
 
   @objc func getStatus(_ resolve: @escaping RCTPromiseResolveBlock,
